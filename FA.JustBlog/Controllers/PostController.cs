@@ -24,7 +24,6 @@ namespace FA.JustBlog.Controllers
         // GET: Post
         public async Task<ActionResult> Index(string byWhat, string currentByWhat, string currentFilter, string searchString, int? page, int? pageSize)
         {
-            var something = "???";
             if (searchString != null)
             {
                 page = 1;
