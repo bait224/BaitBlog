@@ -1,0 +1,144 @@
+﻿@model FA.JustBlog.Core.Models.Post
+@{
+    ViewBag.Title = "DetailPost";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <h2 class="post-title">@Html.DisplayFor(model => model.Title)</h2>
+            <p class="post-meta">@Html.PostedOn(Model.PostedOn) with rate @Html.DisplayFor(modelItem => Model.Rate) by @Html.DisplayFor(modelItem => Model.ViewCount) view(s)</p>
+        </div>
+    </div>
+    <hr />
+    <br />
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="post-preview">
+                <p class="post-subtitle">@Html.Raw(HttpUtility.HtmlDecode(Model.PostContent))</p>
+            </div>
+        </div>
+    </div>
+    <hr />
+    @{
+        string name = "";
+        string email = "";
+        if (User.Identity.IsAuthenticated)
+        {
+            name = User.GetFullName();
+            email = User.Identity.GetUserName();
+        }
+    }
+    <div class="row">
+        <div class="col-lg-9 col-md-11 mx-auto">
+            <div class="card my-4">
+                <h5 class="card-header">Leave a Comment:</h5>
+                <div class="card-body">
+                    <form id="comment-form">
+                        <div class="form-group">
+                            <label for="Name">Name</label>
+                            <input class="form-control" type="text" name="Name" value="@name" id="Name">
+                            @Html.ValidationMessage("", new { @class = "text-danger", @id = "Name_validationMessage" })
+                        </div>
+                        <div class="form-group">
+                            <label for="EmailAddress">Email</label>
+                            <input class="form-control" type="text" name="EmailAddress" value="@email" id="EmailAddress">
+                            @Html.ValidationMessage("", new { @class = "text-danger", @id = "Email_validationMessage" })
+                        </div>
+                        <div class="form-group">
+                            <label for="CommentHeader">Header</label>
+                            <input class="form-control" type="text" name="CommentHeader" id="CommentHeader">
+                            @Html.ValidationMessage("", new { @class = "text-danger", @id = "CommentHeader_validationMessage" })
+                        </div>
+                        <div class="form-group">
+                            <label for="CommentText">Content</label>
+                            <textarea class="form-control" rows="3" name="CommentText" id="CommentText"></textarea>
+                            @Html.ValidationMessage("", new { @class = "text-danger", @id = "CommentText_validationMessage" })
+                        </div>
+                        <button type="button" class="btn btn-primary" id="submit-comment">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="comment-body col-lg-9 col-md-11 mx-auto">
+            @foreach (var comment in Model.Comments)
+            {
+                <div class="media mb-4">
+                    <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+                    <div class="media-body">
+                        <h5 class="mt-0">@comment.Name</h5>
+                        @Html.Raw(HttpUtility.HtmlDecode(@comment.CommentText))
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Single Comment -->
+</div>
+@section Scripts {
+    <script>
+        CKEDITOR.replace('CommentText');
+
+        function showErrorMessages(errors, context) {
+            context.find('span.text-danger').removeClass("field-validation-error").addClass("field-validation-valid");
+            $.each(errors, function (i, error) {
+                var errorElement = $("#" + error.Key.substring(error.Key.indexOf(".") + 1) + "_validationMessage");
+                errorElement.text(error.Value)
+                    .removeClass("field-validation-valid")
+                    .addClass("field-validation-error");
+
+            });
+        }
+
+        $("#submit-comment").click(() => {
+            CKEDITOR.instances.CommentText.updateElement();
+            var name = $("#Name").val();
+            var email = $("#EmailAddress").val();
+            var header = $("#CommentHeader").val();
+            var content = $("#CommentText").val();
+            var postId = @Model.Id;
+            var form = $("#comment-form");
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("CreateComment", "Comment", new { area = "" })",
+                    datatype: "json",
+                    data: {
+                        commentViewModel: {
+                            Name: name,
+                            Email: email,
+                            CommentHeader: header,
+                            CommentText: content,
+                            PostId: postId
+                        }
+                    },
+                    success: function (data, status, xhr) {
+                        if (data.HasErrors) {
+                            showErrorMessages(data.Message, form)
+                        }
+                        else {
+                            $(".comment-body").append(
+                                '<div class="media mb-4">' +
+                                '<img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">' +
+                                '<div class="media-body">' +
+                                '<h5 class="mt-0">' +
+                                data.Data.Name +
+                                '</h5 >' +
+                                data.Data.CommentText +
+                                '</div>' +
+                                '</div>');
+                            form.trigger("reset");
+                            form.find('span.text-danger').removeClass("field-validation-error").addClass("field-validation-valid");
+                            CKEDITOR.instances.CommentText.setData("");
+                        }
+
+                    },
+                    error: function (data, status, xhr) {
+                        $.alert(data.Message);
+                    }
+                });
+        })
+    </script>
+
+}

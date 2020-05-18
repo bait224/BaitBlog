@@ -1,0 +1,35 @@
+﻿@using FA.JustBlog.Models;
+@using FA.JustBlog.Core.Common;
+
+@model ListPostModel
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto pt-3">
+            @if (Model.Type == TypeListPostEnum.LatestPost)
+            {
+                <h5>Latest Posts</h5>
+            }
+            else if (Model.Type == TypeListPostEnum.MostViewPost)
+            {
+                <h5>Most View Posts</h5>
+            }
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            @foreach (var item in Model.ListPost)
+            {
+                <div class="post-preview">
+                    <a href="@Url.Action("DetailPost","Post", new { @year = item.PostedOn.Year, month = item.PostedOn.Month.ToString("00"), title = item.UrlSlug })"><p style="font-size: 12px; font-weight: bold ">@Html.DisplayFor(modelItem => item.Title)</p></a>
+                </div>
+                <hr />
+            }
+        </div>
+    </div>
+</div>
+
+
+
+
+

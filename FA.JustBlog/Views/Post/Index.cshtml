@@ -1,0 +1,114 @@
+﻿@model ListPostViewModel
+
+@{
+    ViewBag.Title = "Index";
+}
+@{
+    var action = "ListPost";
+    var title = "";
+    switch ((int)Model.Type)
+    {
+        case (int)ListPostTypeToIndex.AllPost:
+            action = "Index";
+            title = "All Post";
+            break;
+        case (int)ListPostTypeToIndex.ByCategory:
+            action = "ListPostByCategory";
+            title = Model.ByWhat;
+            break;
+        case (int)ListPostTypeToIndex.ByTag:
+            action = "GetPostsByTag";
+            title = Model.ByWhat;
+            break;
+    }
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <h2>@title!</h2>
+        </div>
+        <div class="col-md-4">
+            <form action="@Url.Action(action, "Post")" method="get" class="form-inline float-right">
+                <div class="form-group mx-sm-3 mb-2">
+                    <input type="hidden" name="currentByWhat" value="@ViewData["CurrentByWhat"]"/>
+                    <input type="text" class="form-control mr-1" id="inputSearch" name="searchString" value="@ViewData["CurrentFilter"]" placeholder="Search ...">
+                    <button type="submit" class="btn-sm btn-primary mr-5"><i class="fa fa-search"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <hr />
+    <br />
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            @foreach (var item in Model.ListPost)
+            {
+                <div class="post-preview">
+                    @Html.ActionLink(item.Title, "DetailPost", "Post", new { @year = item.PostedOn.Year, month = item.PostedOn.Month.ToString("00"), title = item.UrlSlug }, new { @class = "text-uppercase font-weight-bold" })
+                    <p class="post-meta">@Html.PostedOn(item.PostedOn) with rate @Html.DisplayFor(modelItem => item.Rate) by @Html.DisplayFor(modelItem => item.ViewCount) view(s)</p>
+                    <p>Category @Html.CategoryLink(item.Category)</p>
+                    <div>
+                        @foreach (var tag in item.Tags)
+                        {
+                            @Html.TagLink(tag)
+                        }
+                    </div>
+                    <p class="post-subtitle">@item.ShortDescription</p>
+                </div>
+                <hr />
+                <br />
+            }
+        </div>
+    </div>
+    <div class="row col-md-12 d-flex justify-content-center">
+        <nav class="mt-4" aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                @{
+                    var prevDisabled = !Model.ListPost.HasPreviousPage ? "disabled" : "";
+                    var nextDisabled = !Model.ListPost.HasNextPage ? "disabled" : "";
+                    var preBgDisabled = !Model.ListPost.HasPreviousPage ? "#e6e6e6" : "";
+                    var nextBgDisabled = !Model.ListPost.HasNextPage ? "#e6e6e6" : "";
+
+                    ViewBag.PageRange = 3;
+                }
+                <li class="page-item @prevDisabled">
+                    <a href="@Url.Action(action, "Post", new { sortOrder=ViewData["CurrentSort"], page=1, currentFilter=ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"], currentByWhat = ViewData["CurrentByWhat"] })"
+                       class="page-link" style="background-color:@preBgDisabled"><<</a>
+                <li class="page-item @prevDisabled">
+                    <a href="@Url.Action(action, "Post", new { sortOrder=ViewData["CurrentSort"], page=(Model.ListPost.PageIndex - 1 <= 0 ? 1 : Model.ListPost.PageIndex - 1), currentFilter=ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"], currentByWhat = ViewData["CurrentByWhat"] })"
+                       class="page-link" style="background-color:@preBgDisabled"><</a>
+                </li>
+                @for (int i = 1; i <= Model.ListPost.TotalPages; i++)
+                {
+                    if (i >= Model.ListPost.PageIndex - ViewBag.PageRange && i <= Model.ListPost.PageIndex + ViewBag.PageRange)
+                    {
+                        <li class="page-item">
+                            @if (i == Model.ListPost.PageIndex)
+                            {
+                                <span class="page-link">
+                                    @i
+                                    <span class="sr-only">(current)</span>
+                                </span>
+                            }
+                            else
+                            {
+                                <a class="page-link"
+                                   href="@Url.Action(action, "Post", new { sortOrder=ViewData["CurrentSort"], page=i, currentFilter=ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"], currentByWhat = ViewData["CurrentByWhat"] })">@i</a>
+                            }
+                        </li>
+                    }
+                }
+                <li class="page-item @nextDisabled">
+                    <a href="@Url.Action(action, "Post", new { sortOrder=ViewData["CurrentSort"], page=(Model.ListPost.PageIndex + 1 > Model.ListPost.TotalPages ? Model.ListPost.TotalPages : Model.ListPost.PageIndex + 1), currentFilter=ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"], currentByWhat = ViewData["CurrentByWhat"] })"
+                       class="page-link" style="background-color:@nextBgDisabled">></a>
+                <li class="page-item @nextDisabled">
+                    <a href="@Url.Action(action, "Post", new { sortOrder=ViewData["CurrentSort"], page=(Model.ListPost.TotalPages), currentFilter=ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"], currentByWhat = ViewData["CurrentByWhat"] })"
+                       class="page-link" style="background-color:@nextBgDisabled">>></a>
+            </ul>
+        </nav>
+    </div>
+
+</div>
+
+
+

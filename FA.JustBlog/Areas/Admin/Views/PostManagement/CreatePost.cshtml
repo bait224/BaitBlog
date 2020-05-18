@@ -1,0 +1,426 @@
+﻿@model PostAddViewModel
+
+@{
+    ViewBag.Title = "CreatePost";
+}
+
+
+<div class="container-fluid">
+    <h2>CreatePost</h2>
+
+    @Html.ActionLink("Back to List", "ListPost")
+
+    <hr />
+    @using (Html.BeginForm("CreatePost", "PostManagement", FormMethod.Post, new { @id = "create_post", @enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        HtmlHelper.UnobtrusiveJavaScriptEnabled = false;
+        <div class=" row form-horizontal">
+
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="col-md-5">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-12">
+                        @Html.TextAreaFor(model => model.Title, new { @class = "form-control", @style = "width:100%", @name = "title", @id = "title", @rows = "2" })
+                        @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.UrlSlug, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-12">
+                        @Html.EditorFor(model => model.UrlSlug, new { htmlAttributes = new { @class = "form-control", @name = "slug", @id = "slug", @readonly = "readonly" } })
+                        @Html.ValidationMessageFor(model => model.UrlSlug, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ShortDescription, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-12">
+                        @Html.TextAreaFor(model => model.ShortDescription, new { @class = "form-control", @style = "width:100%", @rows = "3", @id = "short-description" })
+                        @Html.ValidationMessageFor(model => model.ShortDescription, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <div class="checkbox">
+                            @Html.EditorFor(model => model.Published)
+                            @Html.LabelFor(model => model.Published, htmlAttributes: new { @class = "control-label mr-3" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CategoryId, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="input-group col-md-12">
+                        @Html.DropDownListFor(m => m.CategoryId, new SelectList(ViewBag.Categories, "Value", "Text"), "Select a category", new { @class = "form-control", @id = "CateList" })
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary pt-0 pb-0" type="button" data-toggle="modal" onclick="AddNewCategory();">+</button>
+                        </div>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.TagsId, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="input-group col-md-12 mb-3">
+                        @Html.DropDownListFor(m => m.TagsId, new MultiSelectList(Model.Tags, "Id", "Name"), new { @class = "form-control", @id = "tag-list", @multiple = "multiple" })
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary pt-0 pb-0" type="button" data-toggle="modal" onclick="CreateNewTag();">+</button>
+                        </div>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        @Html.ValidationMessageFor(model => model.Tags, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-7">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.PosterImg, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="custom-file col-md-12">
+                        <input type="file" class="form-control custom-file-input" id="validatedCustomFile" name="validatedCustomFile" onchange="readURL(this)">
+                        <label class="custom-file-label" for="validatedCustomFile">Choose an image</label>
+                        <div class="row mt-2">
+                            <img id="FileImage" src="~/Assets/images/poster-default.jpg" name="PosterImg" alt="your image" class="img-thumbnail" width="200" />
+                        </div>
+                        @Html.ValidationMessageFor(m => m.PosterImg, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.PostContent, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-12">
+                        @Html.TextAreaFor(model => model.PostContent, new { @class = "form-control", @name = "content", @style = "width:100%", @rows = "3", @id = "content" })
+                        @Html.ValidationMessageFor(model => model.PostContent, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="button" id="createBtn" value="Create" class="btn btn-default" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }
+
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+ 
+    <script type="text/javascript" src="~/Assets/admin_assets/js/readFile.js"></script>
+    <script type="text/javascript">
+
+        var currentCategory = {};
+
+        CKEDITOR.replace('content');
+        CKEDITOR.instances.content.updateElement();
+        $("#tag-list").select2();
+        $("#CateList").select2();
+
+        function gettoken() {
+            var token = '@Html.AntiForgeryToken()';
+            token = $(token).val();
+            return token;
+        }
+
+        function ChangeToSlug(title)
+        {
+            var slug;
+
+            slug = title.toLowerCase();
+
+            slug = slug.replace(/á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/gi, 'a');
+            slug = slug.replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/gi, 'e');
+            slug = slug.replace(/i|í|ì|ỉ|ĩ|ị/gi, 'i');
+            slug = slug.replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/gi, 'o');
+            slug = slug.replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/gi, 'u');
+            slug = slug.replace(/ý|ỳ|ỷ|ỹ|ỵ/gi, 'y');
+            slug = slug.replace(/đ/gi, 'd');
+
+            slug = slug.replace(/[&\/\\#,+()$~%.'":*?<>{}_]/gi, '');
+
+            slug = slug.replace(/ /gi, "-");
+
+            slug = slug.replace(/\-\-\-\-\-/gi, '-');
+            slug = slug.replace(/\-\-\-\-/gi, '-');
+            slug = slug.replace(/\-\-\-/gi, '-');
+            slug = slug.replace(/\-\-/gi, '-');
+
+            slug = 'y' + slug + 'y';
+            slug = slug.replace(/\y\-|\-\y|\y/gi, '');
+
+            return slug;
+        };
+
+        function AddNewCategory() {
+            $.confirm({
+                title: 'Create new category!',
+                content: '' +
+                '<form action="" class="formName">' +
+                '<div class="form-group">' +
+                '<label>Name</label>' +
+                '<input type="text" placeholder="Category name" class="name form-control" name ="title" id="title" required />' +
+                '</div>' +
+                '<div class="form-group">' +
+                '<label>Url Slug</label>' +
+                '<input type="text"  class="slug form-control" id="slug" name="slug" readonly required />' +
+                '</div>' +
+                '<div class="form-group">' +
+                '<label>Description</label>' +
+                '<input type="text"  class="desc form-control" id="description" />' +
+                '</div>' +
+                '</form>'
+                ,
+                buttons: {
+                    formSubmit: {
+                        text: 'Create',
+                        btnClass: 'btn-blue',
+                        action: function () {
+                            var name = this.$content.find('.name').val();
+                            var urlSlug = this.$content.find('.slug').val();
+                            var Desc = this.$content.find('.desc').val();
+                            var Drl = $("#CateList");
+                            var curCat = {};
+                            if (name && urlSlug) {
+                                var spanEl = $("#select2-CateList-container");
+                                var existFlag = false;
+                                $('#CateList option').each(function (index, item) {
+                                    if (name === item.text) {
+                                        item.selected = true;
+                                        spanEl[0].textContent = item.text;
+                                        spanEl[0].title = item.text;
+                                        existFlag = true;
+
+                                        curCat = {
+                                            Id: item.value,
+                                            Name: "",
+                                            UrlSlug: "",
+                                            Description: ""
+                                        }
+                                    }
+                                    else {
+                                        item.selected = false;
+                                    }
+                                })
+                                if (!existFlag) {
+                                    var p = new Option(name, 0, false, true);
+                                    Drl.append(p);
+                                    curCat = {
+                                        Id: 0,
+                                        Name: name,
+                                        UrlSlug: urlSlug,
+                                        Description: Desc
+                                    }
+                                }
+                                currentCategory = curCat
+                            }
+                            else {
+                                $.alert('Please enter a valid name');
+                                return false;
+                            }
+                        }
+                    },
+                    cancel: function () {
+                        //close
+                    }
+                },
+                onContentReady: function () {
+
+                    var jc = this;
+                    this.$content.find('form').on('submit', function (e) {
+                        e.preventDefault();
+                        jc.$$formSubmit.trigger('click');
+                    });
+
+                    this.$content.find('.name').keyup(function (event) {
+                        var title = jc.$content.find('.name').val();
+                        var slug = ChangeToSlug(title);
+                        jc.$content.find('.slug').val(slug);
+                    });
+                }
+            });
+        };
+
+
+        function CreateNewTag() {
+            $.confirm({
+                title: 'Create new tag!',
+                content: '' +
+                '<form action="" class="formName">' +
+                '<div class="form-group">' +
+                '<label>Name</label>' +
+                '<input type="text" placeholder="Tag name" class="name form-control" name ="title" id="title" required />' +
+                '</div>' +
+                '<div class="form-group">' +
+                '<label>Url Slug</label>' +
+                '<input type="text"  class="slug form-control" id="slug" name="slug" readonly required />' +
+                '</div>' +
+                '<div class="form-group">' +
+                '<label>Description</label>' +
+                '<input type="text"  class="desc form-control" id="description" />' +
+                '</div>' +
+                '</form>'
+                ,
+                buttons: {
+                    formSubmit: {
+                        text: 'Create',
+                        btnClass: 'btn-blue',
+                        action: function () {
+                            var name = this.$content.find('.name').val();
+                            var urlSlug = this.$content.find('.slug').val();
+                            var Desc = this.$content.find('.desc').val();
+                            var Drl = $("#tag-list");
+
+                            if (name && urlSlug) {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "@Url.Action("QuickAddTag", "TagsManagement", new { area = "Admin"})",
+                                    dataType: "json",
+                                    data: {
+                                        __RequestVerificationToken: gettoken(),
+                                        tagViewModel: {
+                                            Name: name,
+                                            UrlSlug: urlSlug,
+                                            Description: Desc
+                                        }
+                                    },
+                                    success: function (res) {
+                                        if (res != null) {
+                                            $.each(res, function (index, item) {
+                                                var p = new Option(item.Text, item.Value, false, true);
+                                                Drl.append(p);
+                                            });
+                                        }
+
+
+                                        $.alert({
+                                            title: 'Alert!',
+                                            content: "Create success"
+                                        });
+                                    },
+                                    error: function () {
+                                        $.alert("Create error");
+                                    }
+                                });
+                            }
+                            else {
+                                $.alert('Please enter a valid name');
+                                return false;
+                            }
+                        }
+                    },
+                    cancel: function () {
+                        //close
+                    }
+                },
+                onContentReady: function () {
+
+                    var jc = this;
+                    this.$content.find('form').on('submit', function (e) {
+                        e.preventDefault();
+                        jc.$$formSubmit.trigger('click');
+                    });
+
+                    this.$content.find('.name').keyup(function (event) {
+                        var title = jc.$content.find('.name').val();
+                        var slug = ChangeToSlug(title);
+                        jc.$content.find('.slug').val(slug);
+                    });
+                }
+            });
+        }
+
+        function showErrorMessages(errors, context) {
+            context.find('span.text-danger').removeClass("field-validation-error").addClass("field-validation-valid");
+            $.each(errors, function (i, error) {
+                var errorElement = $("#" + error.Key.substring(error.Key.indexOf(".") + 1) + "_validationMessage");
+                errorElement.text(error.Value)
+                    .removeClass("field-validation-valid")
+                    .addClass("field-validation-error");
+
+            });
+        }
+
+        $("#createBtn").click(() => {
+            var form = $("#create_post");
+
+
+            CKEDITOR.instances.content.updateElement();
+            var dataForm = $('form').serializeArray().reduce(function (accumulator, currentValue, currentIndex) {
+                                                                            if (currentIndex === 1) {
+                                                                                var json = {};
+                                                                                json[accumulator.name] = accumulator.value;
+                                                                                return json;
+                                                                            }
+                                                                            accumulator[currentValue.name] = currentValue.value;
+                                                                            return accumulator;
+                                                                        });
+
+                dataForm["Category"] = this.currentCategory;
+                var fileUpload = $("#validatedCustomFile").get(0);
+                var files = fileUpload.files;  
+                var filedata = new FormData();
+
+                for (var i = 0; i < files.length; i++) {
+                    filedata.append(files[i].name, files[i]);
+                } 
+                filedata.append("postViewModel",dataForm);
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("CreatePost", "PostManagement", new { area = "Admin" })",
+                    datatype: "json",
+                    data: filedata,
+                    success: function (data, status, xhr) {
+                        if (data.HasErrors) {
+                            showErrorMessages(data.Message, form)
+                        }
+                        else {
+                            console.log('1');
+                            $.alert({
+                                title: 'Alert!',
+                                content: data.Message,
+                                buttons: {
+                                    ok: function () {
+                                        console.log('ok');
+                                        //location.reload();
+                                    }
+                                }
+                            });
+                            //form.trigger("reset");
+                            //form.find('span.text-danger').removeClass("field-validation-error").addClass("field-validation-valid");
+                            //$("#tag-list").val('').trigger('change');
+                            //$("#CateList").val('').trigger('change');
+                            //CKEDITOR.instances.content.setData("");
+                        }
+                        
+                    },
+                    error: function (data, status, xhr) {
+                        $.alert(data.Message);
+                    }
+                });
+
+        });
+
+
+        $(function () {
+            $(document).on('change', ':file', function () {
+                var input = $(this), numFiles = input.get(0).files ? input.get(0).files.length : 1,
+                    label = input.val().replace(/\\/g, '/').replace(/.*\//, ''); input.trigger('fileselect', [numFiles, label]);
+            });
+            $(document).ready(function () {
+                $(':file').on('fileselect', function (event, numFiles, label) {
+                    var input = $(this).parents('.custom-file').find('.custom-file-label'),
+                        log = numFiles > 1 ? numFiles + ' files selected' : label; if (input.length) { input.text(log); } else { if (log) alert(log); }
+                });
+            });
+        });
+
+
+    </script>
+}
+

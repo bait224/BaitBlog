@@ -1,0 +1,317 @@
+﻿@using FA.JustBlog.Areas.Common
+@model ListPostViewModel
+
+@{
+    ViewBag.Title = "ListPost";
+    Layout = "~/Areas/Admin/Views/Shared/_DashboardLayout.cshtml";
+}
+@{
+    var action = "ListPost";
+    var title = "";
+    switch ((int)Model.Type)
+    {
+        case (int)ListPostTypeForManage.AllPost:
+            action = "ListPost";
+            title = "All Post";
+            break;
+        case (int)ListPostTypeForManage.PublishedPost:
+            action = "PublishedListPost";
+            title = "Published Posts";
+            break;
+        case (int)ListPostTypeForManage.UnPublishedPost:
+            action = "UnPublishedListPost";
+            title = "Un-Published Posts";
+            break;
+    }
+}
+<div class="container-fluid">
+    <h2>@title</h2>
+    <hr />
+    <div class="row col-md-12">
+        <div class="col-md-4">
+            <a href="@Url.Action("CreatePost", "PostManagement")" class="btn btn-primary float-left">Create Post</a>
+        </div>
+        <div class="col-md-8">
+            <form action="@Url.Action(action, "PostManagement")" method="get" class="form-inline float-right">
+                <div class="form-group mx-sm-3 mb-2">
+                    <input type="text" class="form-control mr-1" id="inputSearch" name="searchString" value="@ViewData["CurrentFilter"]" placeholder="Input ...">
+                    <button type="submit" class="btn-sm btn-primary mr-5"><i class="fa fa-search"></i></button>
+                    <a href="@Url.Action(action, "PostManagement")" class="btn btn-primary ml-5"><i class="fa fa-refresh"></i></a>
+                </div>
+            </form>
+        </div>
+    </div>
+    @if (!Model.ListPost.Any())
+    {
+        <div class="row">
+            <table class="table">
+                <tr>
+                    <td colspan="3" class="text-center">Don't have result.</td>
+                </tr>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="row col-md-12 mt-4">
+            <div class="col-md-4">
+                @using (Html.BeginForm(action, "PostManagement", FormMethod.Get))
+                {
+                    <p>
+                        Page Size: @Html.DropDownList("pageSize", (List<SelectListItem>)ViewBag.size, new { @onchange = "this.form.submit();" })
+                    </p>
+                }
+            </div>
+            <table class="table-striped table-bordered table-responsive" style="font-size: 16px">
+                <tr>
+                    <th style="display: none">
+                        Id
+                    </th>
+                    <th style="width: 25%; text-align: center">
+                        <a href="@Url.Action(action, "PostManagement", new { sortOrder = ViewData["TitleSortParm"], currentFilter = ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })">Title</a>
+                    </th>
+                    <th style="width: 15%; text-align: center">
+                        Published
+                    </th>
+                    <th style="width: 9%; text-align: center">
+                        <a href="@Url.Action(action, "PostManagement", new { sortOrder = ViewData["PostedOnSortParm"], currentFilter = ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })">Posted On</a>
+                    </th>
+                    <th style="width: 9%; text-align: center">
+                        <a href="@Url.Action(action, "PostManagement", new { sortOrder = ViewData["ModifiedOnSortParm"], currentFilter = ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })">Modified On</a>
+                    </th>
+                    <th style="width: 5%; text-align: center">
+                        <a href="@Url.Action(action, "PostManagement", new { sortOrder = ViewData["ViewsSortParm"], currentFilter = ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })">Views</a>
+                    </th>
+                    <th style="width: 5%; text-align: center">
+                        <a href="@Url.Action(action, "PostManagement", new { sortOrder = ViewData["RateSortParm"], currentFilter = ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })">Rate</a>
+                    </th>
+                    <th style="width: 9%; text-align: center">
+                        Category
+                    </th>
+                    <th style="width: 9%; text-align: center">
+                        Tags
+                    </th>
+                    <th style="width: 14%"></th>
+                </tr>
+
+                @foreach (var item in Model.ListPost)
+                {
+                    <tr>
+                        <td style="display: none">
+                            @item.Id
+                        </td>
+                        <td style="width: 15%">
+                            <a href="@Url.Action("DetailPost", "Post", new { area = "", @year = item.PostedOn.Year, month = item.PostedOn.Month.ToString("00"), title = item.UrlSlug })">@Html.DisplayFor(modelItem => item.Title)</a>
+                        </td>
+                        @if (item.Published)
+                        {
+                            <td class="pl-4 status"><i class="fa fa-check-square-o true" aria-hidden="true"> Published</i></td>
+                        }
+                        else
+                        {
+                            <td class="pl-4 status"><i class="fa fa-ban false" aria-hidden="true"> Un-Published</i></td>
+                        }
+                        <td style="width: 9%; text-align: center">
+                            @{
+                                var postedOnDate = item.PostedOn.ToShortDateString();
+                                var postedOnTime = item.PostedOn.ToString("hh:mm tt");
+                            }
+                            @postedOnDate
+                            <br />
+                            @postedOnTime
+                        </td>
+                        <td style="width: 9%; text-align: center">
+                            @{
+                                var modifiedDate = item.ModifiedDate.ToShortDateString();
+                                var modifiedTime = item.ModifiedDate.ToString("hh:mm tt");
+                            }
+                            @modifiedDate
+                            <br />
+                            @modifiedTime
+                        </td>
+                        <td style="width: 5%; text-align: center">
+                            @Html.DisplayFor(modelItem => item.ViewCount)
+                        </td>
+                        <td style="width: 5%; text-align: center">
+                            @Html.DisplayFor(modelItem => item.Rate)
+                        </td>
+                        <td style="width: 6%">
+                            @Html.DisplayFor(modelItem => item.Category.Name)
+                        </td>
+                        <td style="width: 6%">
+                            @{
+                                var listTag = "";
+                                if (item.Tags.Any())
+                                {
+                                    foreach (var tag in item.Tags)
+                                    {
+                                        listTag += tag.Name + ", ";
+                                    }
+                                    listTag = listTag.Substring(0, listTag.Length - 2);
+                                }
+                            }
+                            @listTag
+                        </td>
+                        <td style="width: 14%; text-align: center">
+                            <button class="btn-sm btn-primary" onclick="location.href='@Url.Action("EditPost", "PostManagement", new { Id = item.Id})'" style="width: 35px"><i class="fa fa-edit"></i></button> |
+                            <button class="btn-sm btn-danger" onclick="DeletePost(@item.Id)" id="delete_@item.Id" style="width: 35px"><i class="fa fa-remove"></i></button>
+                        </td>
+                    </tr>
+                 }
+            </table>
+        </div>
+        <div class="row col-md-12 d-flex justify-content-center">
+            <nav class="mt-4" aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    @{
+                        var prevDisabled = !Model.ListPost.HasPreviousPage ? "disabled" : "";
+                        var nextDisabled = !Model.ListPost.HasNextPage ? "disabled" : "";
+                        var preBgDisabled = !Model.ListPost.HasPreviousPage ? "#e6e6e6" : "";
+                        var nextBgDisabled = !Model.ListPost.HasNextPage ? "#e6e6e6" : "";
+
+                        ViewBag.PageRange = 3;
+                    }
+                    <li class="page-item @prevDisabled">
+                        <a href="@Url.Action(action, "PostManagement", new { sortOrder=ViewData["CurrentSort"], page=1, currentFilter=ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })"
+                           class="page-link" style="background-color:@preBgDisabled"><<</a>
+                    <li class="page-item @prevDisabled">
+                        <a href="@Url.Action(action, "PostManagement", new { sortOrder=ViewData["CurrentSort"], page=(Model.ListPost.PageIndex - 1 <= 0 ? 1 : Model.ListPost.PageIndex - 1), currentFilter=ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })"
+                           class="page-link" style="background-color:@preBgDisabled"><</a>
+                    </li>
+                    @for (int i = 1; i <= Model.ListPost.TotalPages; i++)
+                {
+                    if (i >= Model.ListPost.PageIndex - ViewBag.PageRange && i <= Model.ListPost.PageIndex + ViewBag.PageRange)
+                    {
+                    <li class="page-item">
+                        @if (i == Model.ListPost.PageIndex)
+                        {
+                                <span class="page-link">
+                                    @i
+                                    <span class="sr-only">(current)</span>
+                                </span>
+                                }
+                                else
+                                {
+                                <a class="page-link"
+                                   href="@Url.Action(action, "PostManagement", new { sortOrder=ViewData["CurrentSort"], page=i, currentFilter=ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })">@i</a>
+                                }
+                    </li>
+                        }
+                    }
+                    <li class="page-item @nextDisabled">
+                        <a href="@Url.Action(action, "PostManagement", new { sortOrder=ViewData["CurrentSort"], page=(Model.ListPost.PageIndex + 1 > Model.ListPost.TotalPages ? Model.ListPost.TotalPages : Model.ListPost.PageIndex + 1), currentFilter=ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })"
+                           class="page-link" style="background-color:@nextBgDisabled">></a>
+                    <li class="page-item @nextDisabled">
+                        <a href="@Url.Action(action, "PostManagement", new { sortOrder=ViewData["CurrentSort"], page=(Model.ListPost.TotalPages), currentFilter=ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })"
+                           class="page-link" style="background-color:@nextBgDisabled">>></a>
+                </ul>
+            </nav>
+        </div>
+
+                        }
+
+</div>
+@section Scripts {
+    <script>
+            function gettoken() {
+            var token = '@Html.AntiForgeryToken()';
+            token = $(token).val();
+            return token;
+             }
+
+            function DeletePost(id) {
+                $.confirm({
+                    title: 'Delete Confirm!',
+                    content: 'Are you sure to delete this post?',
+                    buttons: {
+                        confirm: function () {
+                            $.ajax({
+                                type: "POST",
+                                url: "@Url.Action("DeletePost","PostManagement", new { area = "Admin"})",
+                                datatype: "json",
+                                data: {
+                                    __RequestVerificationToken: gettoken(),
+                                    Id: id,
+                                },
+                                success: function (result) {
+                                    $.alert({
+                                        title: 'Alert!',
+                                        content: result,
+                                        buttons: {
+                                            ok: function () {
+                                                $.ajax({
+                                                    url: "@Url.Action(action, "PostManagement")",
+                                                    success: function () {
+                                                        location.reload();
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                },
+                                error: function (result) {
+                                    $.alert(result);
+                                    $.ajax({
+                                        url: "@Url.Action(action, "PostManagement")",
+                                        success: function () {
+                                            location.reload();
+                                        }
+                                    });
+                                }
+                            });
+                        },
+                        cancel: function () {
+                        }
+                    }
+                });
+            }
+
+            $(".status").click( function(event) {
+                console.log($(this))
+                var id = $(this).parent().find("td:eq(0)").text();
+                var status = $(this).find('i.fa-ban').text();
+                var td = $(this);
+                if (status) {
+                    status = true;
+                }
+                else {
+                    status = false;
+                }
+
+                $.confirm({
+                    title: 'Confirm!',
+                    content: 'Are you sure to change publish status?',
+                    buttons: {
+                        confirm: function () {
+                            $.ajax({
+                                type: "POST",
+                                url: "@Url.Action("UpdatePublish", "PostManagement", new { area = "Admin" })",
+                                datatype: "json",
+                                data: {
+                                    __RequestVerificationToken: gettoken(),
+                                    id: id,
+                                    status: status
+                                },
+                                success: function (response) {
+                                    if (response.IsSuccess) {
+                                        $.alert(response.Message);
+                                        if (status) {
+                                            td.html('<i class="fa fa-check-square-o true" aria-hidden="true"> Published</i>');
+                                        } else td.html('<i class="fa fa-ban false" aria-hidden="true"> Un-Published</i>');
+                                    }
+                                    else {
+                                        $.alert(response.Message);
+                                    }
+                                },
+                                error: function (response) {
+                                    $.alert(response.Message);
+                                }
+                            });
+                        },
+                        cancel: function () {
+                        }
+                    }
+                });
+            })
+    </script>
+}

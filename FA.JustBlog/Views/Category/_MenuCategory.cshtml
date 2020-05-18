@@ -1,0 +1,12 @@
+﻿@using FA.JustBlog.Core.Models
+@model IEnumerable<Category>
+
+@if (Model != null)
+{
+    foreach (var category in Model)
+    {
+        <li class="nav-item">
+            <a class="nav-link" href="@Url.Action("ListPostByCategory","Post", new { byWhat = @category.Name })">@category.Name</a>
+        </li>
+    }
+}
