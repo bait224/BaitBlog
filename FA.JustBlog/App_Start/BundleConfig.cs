@@ -39,7 +39,9 @@ namespace FA.JustBlog
                       "~/Assets/js/jquery-jvectormap-world-mill-en.js",
                       "~/Assets/js/moment.min.js",
                       "~/Assets/admin_assets/js/slug.js",
-                      "~/Assets/js/bootstrap-datetimepicker.min.js"
+                      "~/Assets/js/bootstrap-datetimepicker.min.js",
+                      "~/Assets/canvasjs-2.3.2/canvasjs.min.js",
+                      "~/Assets/canvasjs-2.3.2/jquery.canvasjs.min.js"
                       ));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(

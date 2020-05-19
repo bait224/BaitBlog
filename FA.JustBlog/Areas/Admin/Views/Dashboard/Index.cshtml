@@ -10,7 +10,7 @@
         <small>Control panel</small>
     </h1>
     <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="@Url.Action("Index","Dashboard", new {area = "Admin" })"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Dashboard</li>
     </ol>
 </section>
@@ -35,7 +35,7 @@
         </div>
         <div class="col-lg-4 col-xs-6">
             <!-- small box -->
-            <div class="small-box bg-aqua">
+            <div class="small-box bg-yellow">
                 <div class="inner">
                     <h3>@Model.PublishedCount</h3>
 
@@ -64,8 +64,63 @@
         </div>
     </div>
     <!-- /.row -->
-    
+    <hr />
+    <div class="row pt-20">
+        <div class="container">
+            <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+        </div>
+    </div>
 </section>
 <!-- /.content -->
+@section Scripts{
+    <script>
+        window.onload = function () {
 
+            var dataPoints = [];
+            var chart;
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetPostForChart", "Dashboard", new { area = "Admin" })",
+                dataType: "json",
+                success: function (response) {
+                    if (response != null) {
+                        addData(response);
+                    }
+                }
+            })
+
+            function addData(data) {
+                for (var i = 0; i < data.length; i++) {
+                    dataPoints.push({
+                        label: data[i].Category,
+                        y: data[i].CountPost
+                    });
+                }
+
+                chart = new CanvasJS.Chart("chartContainer", {
+                    animationEnabled: true,
+                    theme: "light2",
+                    title: {
+                        text: "Count Post By Category"
+                    },
+                    axisY: {
+                        title: "Posts Count",
+                        titleFontSize: 20
+                    },
+                    data: [{
+                        type: "column",
+                        yValueFormatString: "#,### Posts",
+                        dataPoints: dataPoints
+                    }]
+                });
+
+                chart.render();
+            }
+
+
+            //$.getJSON(, addData);
+
+        }
+    </script>
+}
 
