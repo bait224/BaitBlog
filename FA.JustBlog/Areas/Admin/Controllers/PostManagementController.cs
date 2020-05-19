@@ -350,80 +350,79 @@ namespace FA.JustBlog.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ValidateInput(false)]
-        public ActionResult CreatePost(int id)
+        public ActionResult CreatePost(PostAddViewModel postViewModel)
         {
 
-            var files = Request.Files;
-            var form = Request.Form;
+            if (ModelState.IsValid)
+            {
+                var files = Request.Files;
+                var image = files["file"];
+                string fileName = image.FileName;
+                if (image != null && image.ContentLength > 0)
+                {
+                    try
+                    {
+                        fileName = Path.GetFileName(fileName);
+                        string path = Path.Combine(Server.MapPath(_ImagesPath), Path.GetFileName(fileName));
+                        image.SaveAs(path);
 
-            return HttpNotFound();
-            //if (ModelState.IsValid)
-            //{
-            //    var files = Request.Files
-            //    string fileName = "";
-            //    if (validatedCustomFile != null && validatedCustomFile.ContentLength > 0)
-            //    {
-            //        try
-            //        {
-            //            fileName = Path.GetFileName(validatedCustomFile.FileName);
-            //            string path = Path.Combine(Server.MapPath(_ImagesPath), Path.GetFileName(validatedCustomFile.FileName));
-            //            validatedCustomFile.SaveAs(path);
-            //        }
-            //        catch (Exception)
-            //        {
-            //            throw;
-            //        }
-            //    }
+                        postViewModel.PosterImg = fileName;
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
+                }
 
-            //    List<Tag> tags = new List<Tag>();
-            //    if (postViewModel.TagsId != null)
-            //    {
-            //        foreach (var tag in postViewModel.TagsId)
-            //        {
-            //            tags.Add(_tagService.Find(tag).Data as Tag);
-            //        }
-            //    }
+                List<Tag> tags = new List<Tag>();
+                if (postViewModel.TagsId != null)
+                {
+                    foreach (var tag in postViewModel.TagsId)
+                    {
+                        tags.Add(_tagService.Find(tag).Data as Tag);
+                    }
+                }
 
 
-            //    postViewModel.Tags = tags;
-            //    var post = Mapper.Map<Post>(postViewModel);
-            //    post.PosterImg = fileName;
-            //    var response = _postService.Add(post);
-            //    if (response.Status == 200)
-            //    {
-            //        return Json(new
-            //        {
-            //            HasErrors = false,
-            //            Message = response.MessageText
-            //        }, JsonRequestBehavior.AllowGet);
-            //    }
-            //    else
-            //    {
-            //        return Json(new
-            //        {
-            //            HasErrors = false,
-            //            Message = response.MessageText
-            //        }, JsonRequestBehavior.AllowGet);
-            //    }
-            //}
+                postViewModel.Tags = tags;
+                var post = Mapper.Map<Post>(postViewModel);
+                post.PosterImg = fileName;
+                var response = _postService.Add(post);
+                if (response.Status == 200)
+                {
+                    return Json(new
+                    {
+                        HasErrors = false,
+                        Message = response.MessageText
+                    }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new
+                    {
+                        HasErrors = false,
+                        Message = response.MessageText
+                    }, JsonRequestBehavior.AllowGet);
+                }
+            }
 
-            //List<Category> listCategory = _categoryService.GetAll().Data as List<Category>;
-            //ViewBag.Categories = new SelectList(listCategory.OrderBy(c => c.Id), "Id", "Name");
+            List<Category> listCategory = _categoryService.GetAll().Data as List<Category>;
+            ViewBag.Categories = new SelectList(listCategory.OrderBy(c => c.Id), "Id", "Name");
 
-            //List<Tag> listTag = _tagService.GetAll().Data as List<Tag>;
-            //postViewModel.Tags = listTag;
+            List<Tag> listTag = _tagService.GetAll().Data as List<Tag>;
+            postViewModel.Tags = listTag;
 
-            //var errorMessages = ModelState.ToDictionary(
-            //                        ms => ms.Key,
-            //                        ms => ms.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-            //                    ).Where(ms => ms.Value.Count() > 0);
+            var errorMessages = ModelState.ToDictionary(
+                                    ms => ms.Key,
+                                    ms => ms.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                                ).Where(ms => ms.Value.Count() > 0);
 
-            //return Json(new
-            //{
-            //    HasErrors = true,
-            //    Message = errorMessages
-            //}
-            //);
+            return Json(new
+            {
+                HasErrors = true,
+                Message = errorMessages
+            }
+            );
         }
 
         [HttpPost]

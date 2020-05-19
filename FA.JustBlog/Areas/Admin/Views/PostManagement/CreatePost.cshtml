@@ -13,8 +13,8 @@
     <hr />
     @using (Html.BeginForm("CreatePost", "PostManagement", FormMethod.Post, new { @id = "create_post", @enctype = "multipart/form-data" }))
     {
-        @Html.AntiForgeryToken()
-        HtmlHelper.UnobtrusiveJavaScriptEnabled = false;
+        @*@Html.AntiForgeryToken()*@
+        //HtmlHelper.UnobtrusiveJavaScriptEnabled = false;
         <div class=" row form-horizontal">
 
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -46,7 +46,7 @@
                 <div class="form-group">
                     <div class="col-md-12">
                         <div class="checkbox">
-                            @Html.EditorFor(model => model.Published)
+                            @Html.EditorFor(model => model.Published, new {@id = "published" })
                             @Html.LabelFor(model => model.Published, htmlAttributes: new { @class = "control-label mr-3" })
                         </div>
                     </div>
@@ -111,7 +111,7 @@
 </div>
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
- 
+
     <script type="text/javascript" src="~/Assets/admin_assets/js/readFile.js"></script>
     <script type="text/javascript">
 
@@ -348,33 +348,49 @@
 
         $("#createBtn").click(() => {
             var form = $("#create_post");
-
-
             CKEDITOR.instances.content.updateElement();
-            var dataForm = $('form').serializeArray().reduce(function (accumulator, currentValue, currentIndex) {
-                                                                            if (currentIndex === 1) {
-                                                                                var json = {};
-                                                                                json[accumulator.name] = accumulator.value;
-                                                                                return json;
-                                                                            }
-                                                                            accumulator[currentValue.name] = currentValue.value;
-                                                                            return accumulator;
-                                                                        });
+            var dataForm = $('form').serializeArray();
 
-                dataForm["Category"] = this.currentCategory;
+                //.reduce(function (accumulator, currentValue, currentIndex) {
+                //                                                            if (currentIndex === 1) {
+                //                                                                var json = {};
+                //                                                                json[accumulator.name] = accumulator.value;
+                //                                                                return json;
+                //                                                            }
+                //                                                            accumulator[currentValue.name] = currentValue.value;
+                //                                                            return accumulator;
+                //                                                        });
+
+            dataForm["Category"] = this.currentCategory;
+            var tags = $("#tag-list").val();
+            console.log(tags)
+            var listId = tags.map(function (item) {
+                return parseInt(item, 10);
+            })
+            console.log(listId)
+            var formData = new FormData();
                 var fileUpload = $("#validatedCustomFile").get(0);
-                var files = fileUpload.files;  
-                var filedata = new FormData();
+                var files = fileUpload.files;
 
-                for (var i = 0; i < files.length; i++) {
-                    filedata.append(files[i].name, files[i]);
-                } 
-                filedata.append("postViewModel",dataForm);
+                var publishedValue = null;
+                if ($("#published").val() == null || $("#published").val() == undefined ) {
+                    publishedValue = false;
+                }
+                formData.append("file", files[0]);
+
+                $.each(dataForm, function (key, input) {
+                    formData.append(input.name, input.value);
+                });
+               
+                
                 $.ajax({
                     type: "POST",
                     url: "@Url.Action("CreatePost", "PostManagement", new { area = "Admin" })",
                     datatype: "json",
-                    data: filedata,
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
                     success: function (data, status, xhr) {
                         if (data.HasErrors) {
                             showErrorMessages(data.Message, form)
@@ -387,7 +403,7 @@
                                 buttons: {
                                     ok: function () {
                                         console.log('ok');
-                                        //location.reload();
+                                        location.reload();
                                     }
                                 }
                             });
@@ -397,7 +413,7 @@
                             //$("#CateList").val('').trigger('change');
                             //CKEDITOR.instances.content.setData("");
                         }
-                        
+
                     },
                     error: function (data, status, xhr) {
                         $.alert(data.Message);

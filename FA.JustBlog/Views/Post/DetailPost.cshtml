@@ -10,6 +10,15 @@
             <p class="post-meta">@Html.PostedOn(Model.PostedOn) with rate @Html.DisplayFor(modelItem => Model.Rate) by @Html.DisplayFor(modelItem => Model.ViewCount) view(s)</p>
         </div>
     </div>
+    <div class="row ">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="post-image">
+                <img class="img-fluid img-thumbnail" src="~/Assets/images/@Model.PosterImg"
+                     alt="@Model.Title" />
+            </div>
+        </div>
+    </div>
+    
     <hr />
     <br />
     <div class="row">
@@ -62,15 +71,18 @@
         </div>
 
         <div class="comment-body col-lg-9 col-md-11 mx-auto">
-            @foreach (var comment in Model.Comments)
+            @if (Model.Comments.Any())
             {
-                <div class="media mb-4">
-                    <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-                    <div class="media-body">
-                        <h5 class="mt-0">@comment.Name</h5>
-                        @Html.Raw(HttpUtility.HtmlDecode(@comment.CommentText))
+                foreach (var comment in Model.Comments)
+                {
+                    <div class="media mb-4">
+                        <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+                        <div class="media-body">
+                            <h5 class="mt-0">@comment.Name</h5>
+                            @Html.Raw(HttpUtility.HtmlDecode(@comment.CommentText))
+                        </div>
                     </div>
-                </div>
+                }
             }
         </div>
     </div>

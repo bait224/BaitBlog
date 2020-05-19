@@ -44,6 +44,13 @@
             @foreach (var item in Model.ListPost)
             {
                 <div class="post-preview">
+                    <a href="@Url.Action("DetailPost", "Post", new { @year = item.PostedOn.Year, month = item.PostedOn.Month.ToString("00"), title = item.UrlSlug })">
+                        <div class="post-image">
+                            <img class="img-fluid img-thumbnail" src="~/Assets/images/@item.PosterImg"
+                                 alt="@item.Title" />
+                        </div>
+                    </a>
+                    
                     @Html.ActionLink(item.Title, "DetailPost", "Post", new { @year = item.PostedOn.Year, month = item.PostedOn.Month.ToString("00"), title = item.UrlSlug }, new { @class = "text-uppercase font-weight-bold" })
                     <p class="post-meta">@Html.PostedOn(item.PostedOn) with rate @Html.DisplayFor(modelItem => item.Rate) by @Html.DisplayFor(modelItem => item.ViewCount) view(s)</p>
                     <p>Category @Html.CategoryLink(item.Category)</p>
