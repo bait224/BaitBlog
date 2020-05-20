@@ -18,14 +18,14 @@
             break;
         case (int)ListPostTypeToIndex.ByTag:
             action = "GetPostsByTag";
-            title = Model.ByWhat;
+            title = "#" + Model.ByWhat;
             break;
     }
 }
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-8 col-md-10 mx-auto">
-            <h2>@title!</h2>
+            <h2>@title</h2>
         </div>
         <div class="col-md-4">
             <form action="@Url.Action(action, "Post")" method="get" class="form-inline float-right">
@@ -45,8 +45,15 @@
             {
                 <div class="post-preview">
                     <a href="@Url.Action("DetailPost", "Post", new { @year = item.PostedOn.Year, month = item.PostedOn.Month.ToString("00"), title = item.UrlSlug })">
+                        @{ 
+                            string imageName = "poster-default.jpg";
+                            if (!string.IsNullOrEmpty(item.PosterImg))
+                            {
+                                imageName = item.PosterImg;
+                            }
+                        }
                         <div class="post-image">
-                            <img class="img-fluid img-thumbnail" src="~/Assets/images/@item.PosterImg"
+                            <img class="img-fluid img-thumbnail" src="~/Assets/images/@imageName"
                                  alt="@item.Title" />
                         </div>
                     </a>

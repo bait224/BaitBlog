@@ -29,6 +29,10 @@ namespace FA.JustBlog.Areas.Admin.ViewModels
         public bool Published { get; set; }
 
         [StringLength(255, ErrorMessage = "The {0} only a maximum of {1} characters")]
+        [Display(Name = "Poster")]
+        public string PosterImg { get; set; }
+
+        [StringLength(255, ErrorMessage = "The {0} only a maximum of {1} characters")]
         [Display(Name = "Url Slug")]
         public string UrlSlug { get; set; }
 

@@ -1,7 +1,6 @@
 ﻿using FA.JustBlog.Core.Infrastructure;
 using FA.JustBlog.Core.Models;
 using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
