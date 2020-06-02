@@ -29,15 +29,15 @@ namespace FA.JustBlog.Areas.Admin.Controllers
             DashboardViewModel data = new DashboardViewModel();
             if (publishedPost.Any() && publishedPost != null)
             {
-                data.PublishedCount = User.IsInRole("Contributor") && !User.IsInRole("Administrators") ? publishedPost.Where(x => x.CreatedBy == userName).Count() : publishedPost.Count();
+                data.PublishedCount = User.IsInRole("Contributor") && !User.IsInRole("Administrators") ? publishedPost.Where(x => x.CreatedBy.Trim() == userName).Count() : publishedPost.Count();
             }
             if (unPublishedPost.Any() && unPublishedPost != null)
             {
-                data.UnPublishedCount = User.IsInRole("Contributor") && !User.IsInRole("Administrators") ? unPublishedPost.Where(x => x.CreatedBy == userName).Count() : unPublishedPost.Count();
+                data.UnPublishedCount = User.IsInRole("Contributor") && !User.IsInRole("Administrators") ? unPublishedPost.Where(x => x.CreatedBy.Trim() == userName).Count() : unPublishedPost.Count();
             }
             if (totalPost.Any() && totalPost != null)
             {
-                data.TotalPost = User.IsInRole("Contributor") && !User.IsInRole("Administrators") ? totalPost.Where(x => x.CreatedBy == userName).Count() : totalPost.Count();
+                data.TotalPost = User.IsInRole("Contributor") && !User.IsInRole("Administrators") ? totalPost.Where(x => x.CreatedBy.Trim() == userName).Count() : totalPost.Count();
             }
 
             return View(data);

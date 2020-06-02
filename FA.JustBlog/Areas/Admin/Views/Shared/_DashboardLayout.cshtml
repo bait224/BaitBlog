@@ -46,7 +46,6 @@
                                 <!-- User image -->
                                 <li class="user-header">
                                     <img src="~/Assets/images/user2-160x160.jpg" class="img-circle" alt="User Image">
-
                                     <p>
                                         @User.Identity.Name - Web Developer
                                     </p>
@@ -88,6 +87,7 @@
                             <li class="active"><a href="@Url.Action("ListPost","PostManagement", new { area = "Admin" })"><i class="fa fa-circle-o"></i> Posts Management</a></li>
                             <li><a href="@Url.Action("Index","CategoryManagement", new { area = "Admin" })"><i class="fa fa-circle-o"></i> Categories Management</a></li>
                             <li><a href="@Url.Action("Index","TagsManagement", new { area = "Admin" })"><i class="fa fa-circle-o"></i> Tags Management</a></li>
+                            <li><a href="@Url.Action("Index","CommentsManagement", new { area = "Admin" })"><i class="fa fa-circle-o"></i> Comments Management</a></li>
                         </ul>
                     </li>
                     @if (User.IsInRole("Administrators"))

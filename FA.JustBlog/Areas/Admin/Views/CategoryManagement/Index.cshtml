@@ -103,7 +103,7 @@
                                 @item.Posts.Count()
                             </td>
                             <td style="text-align: center">
-                                <button class="btn-sm btn-primary" onclick="location.href='@Url.Action("EditCategory", "CategoryManagement", new { Id = item.Id})'"><i class="fa fa-edit"></i></button> |
+                                <button class="btn-sm btn-primary" onclick="location.href='@Url.Action("EditCategory", "CategoryManagement", new { Id = @item.Id})'"><i class="fa fa-edit"></i></button> |
                                 <button class="btn-sm btn-danger" onclick="DeleteCategory(@item.Id)" id="delete_@item.Id"><i class="fa fa-remove"></i></button>
                             </td>
                         </tr>

@@ -49,10 +49,9 @@ namespace FA.JustBlog.Core.Service
                             entity.Category.Id = newCatefory.Id; 
                         }
 
-                        if (entity.PostedOn == default(DateTime))
-                        {
-                            entity.PostedOn = DateTime.UtcNow;
-                        }
+
+                        entity.PostedOn = DateTime.UtcNow;
+
                         entity.ModifiedDate = entity.PostedOn;
 
                         repository.Add(entity);

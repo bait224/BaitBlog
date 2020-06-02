@@ -249,8 +249,8 @@
                                         }
                                     });
                                 },
-                                error: function (result) {
-                                    $.alert(result);
+                                error: function (result, status, err) {
+                                    $.alert(err.Message);
                                     $.ajax({
                                         url: "@Url.Action(action, "PostManagement")",
                                         success: function () {

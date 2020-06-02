@@ -71,9 +71,9 @@
         </div>
 
         <div class="comment-body col-lg-9 col-md-11 mx-auto">
-            @if (Model.Comments.Any())
+            @if (ViewBag.Comments != null)
             {
-                foreach (var comment in Model.Comments)
+                foreach (var comment in ViewBag.Comments)
                 {
                     <div class="media mb-4">
                         <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">

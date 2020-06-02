@@ -59,6 +59,9 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.2\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
     </Reference>
@@ -219,6 +222,7 @@
     <Compile Include="App_Start\UnityMvcActivator.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
     <Compile Include="Areas\Admin\Controllers\CategoryManagementController.cs" />
+    <Compile Include="Areas\Admin\Controllers\CommentsManagementController.cs" />
     <Compile Include="Areas\Admin\Controllers\DashboardController.cs" />
     <Compile Include="Areas\Admin\Controllers\PostManagementController.cs" />
     <Compile Include="Areas\Admin\Controllers\RolesAdminController.cs" />
@@ -233,6 +237,7 @@
     <Compile Include="Areas\Admin\ViewModels\PostAddViewModel.cs" />
     <Compile Include="Areas\Admin\ViewModels\PostEditViewModel.cs" />
     <Compile Include="Areas\Common\ListPostTypeForManage.cs" />
+    <Compile Include="Areas\Common\Log4Net.cs" />
     <Compile Include="Common\CustomHelpers\CustomHelpers.cs" />
     <Compile Include="Common\ListPostTypeToIndex.cs" />
     <Compile Include="Common\UserHelpers\UserExtend.cs" />
@@ -3862,6 +3867,8 @@
     <Content Include="Assets\admin_assets\ckeditor\README.md" />
     <Content Include="Assets\admin_assets\ckeditor\skins\a\readme.md" />
     <Content Include="Assets\admin_assets\ckeditor\skins\moono\readme.md" />
+    <Content Include="Areas\Admin\Views\CommentsManagement\Index.cshtml" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-3.0.0-vsdoc.js" />
     <Content Include="Scripts\jquery-3.0.0.js" />
     <Content Include="Scripts\jquery-3.0.0.min.js" />
@@ -3961,6 +3968,9 @@
       <Project>{13a8ba1b-5641-494a-a2d0-7fec36ee7a1d}</Project>
       <Name>FA.JustBlog.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

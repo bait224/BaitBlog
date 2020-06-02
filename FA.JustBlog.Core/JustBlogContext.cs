@@ -43,9 +43,16 @@ namespace FA.JustBlog.Core
 
         public override int SaveChanges()
         {
+            OnBeforeSaveChange();
+
+            return base.SaveChanges();
+        }
+
+        private void OnBeforeSaveChange()
+        {
             var modifiedEntries = ChangeTracker.Entries()
-                .Where(x => x.Entity is IAuditableEntity
-                    && (x.State == System.Data.Entity.EntityState.Added || x.State == System.Data.Entity.EntityState.Modified));
+                            .Where(x => x.Entity is IAuditableEntity
+                                && (x.State == System.Data.Entity.EntityState.Added || x.State == System.Data.Entity.EntityState.Modified));
 
             foreach (var entry in modifiedEntries)
             {
@@ -70,8 +77,6 @@ namespace FA.JustBlog.Core
                     entity.UpdatedDate = now;
                 }
             }
-
-            return base.SaveChanges();
         }
     }
 }

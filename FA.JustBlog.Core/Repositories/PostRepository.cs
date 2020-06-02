@@ -129,6 +129,10 @@ namespace FA.JustBlog.Core.Repositories
         {
             Post postToUpdate = Find(id);
             postToUpdate.Published = status;
+            if (status)
+            {
+                postToUpdate.PostedOn = DateTime.Now;
+            }
             Update(postToUpdate);
         }
     }

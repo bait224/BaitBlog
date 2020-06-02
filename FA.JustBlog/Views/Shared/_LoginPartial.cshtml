@@ -1,22 +1,26 @@
 ﻿@if (Request.IsAuthenticated)
 {
-    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
-    {
-        @Html.AntiForgeryToken()
-        <div class="dropdown" style="float:left; position: absolute;top: 12px;right: 200px">
-            <a class="dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <img src="~/Assets/images/bootstrap-solid.svg" class="img-info rounded-circle bg-info" style="height:50px"/>
-            </a>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                @if (Request.IsAuthenticated && (User.IsInRole("Administrators") || User.IsInRole("Contributor")))
+    <ul class="nav navbar-nav navbar-right">
+        <li class="nav-item">
+            @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { @id = "logoutForm", @class = "navbar-right" }))
+            {
+            @Html.AntiForgeryToken()
+            <div class="dropdown" style="float:left; position: absolute;top: 12px;right: 200px">
+                <a class="dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <img src="~/Assets/images/bootstrap-solid.svg" class="img-info rounded-circle bg-info" style="height:50px" />
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    @if (Request.IsAuthenticated && (User.IsInRole("Administrators") || User.IsInRole("Contributor")))
                 {
-                    <a class="dropdown-item" style="text-align:center" href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Manage Dashboard</a>
-                }
-                <a class="dropdown-item" href="/Manage/Index">Account Manage</a>
-                <a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit()">Log off</a>
+                        <a class="dropdown-item" style="text-align:center" href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Manage Dashboard</a>
+                    }
+                    <a class="dropdown-item" href="/Manage/Index">Account Manage</a>
+                    <a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit()">Log off</a>
+                </div>
             </div>
-        </div>
-    }
+            }
+        </li>
+    </ul>
 }
 else
 {

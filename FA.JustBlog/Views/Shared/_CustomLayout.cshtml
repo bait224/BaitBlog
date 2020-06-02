@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - Clean Blog - Start Bootstrap Theme</title>
+    <title>@ViewBag.Title - Bait's Blog</title>
     <!-- CSS -->
     @Styles.Render("~/Content/css")
     @Styles.Render("~/bundles/fontawesome-free")
@@ -22,9 +22,9 @@
                 <i class="fas fa-bars"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarResponsive">
-                <ul class="navbar-nav ml-auto">
+                <ul class="navbar-nav ml-5">
                     <li class="nav-item">
-                        <a class="nav-link" href="Index">Home</a>
+                        <a class="nav-link" href="@Url.Action("Index", "Post")">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">About</a>
@@ -33,6 +33,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#">Contact</a>
                     </li>
+                       
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>

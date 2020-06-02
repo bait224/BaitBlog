@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using FA.JustBlog.Common;
 
 namespace FA.JustBlog.Areas.Admin.Controllers
 {
@@ -21,6 +22,8 @@ namespace FA.JustBlog.Areas.Admin.Controllers
         private readonly IPostService _postService;
         private readonly ICatgoryService _categoryService;
         private readonly ITagService _tagService;
+
+        log4net.ILog logger = log4net.LogManager.GetLogger(typeof(PostManagementController));
 
         public PostManagementController(IPostService postService, ICatgoryService categoryService, ITagService tagService)
         {
@@ -75,8 +78,8 @@ namespace FA.JustBlog.Areas.Admin.Controllers
             {
                 filter = b => b.Title.Contains(searchString);
             }
-            
-            if(User.IsInRole("Contributor") && !User.IsInRole("Administrators"))
+
+            if (User.IsInRole("Contributor") && !User.IsInRole("Administrators"))
             {
                 filterByUser = b => (b.CreatedBy == userName);
             }
@@ -357,21 +360,25 @@ namespace FA.JustBlog.Areas.Admin.Controllers
             {
                 var files = Request.Files;
                 var image = files["file"];
-                string fileName = image.FileName;
-                if (image != null && image.ContentLength > 0)
+                if(image != null)
                 {
-                    try
+                    string fileName = image.FileName;
+                    if (image != null && image.ContentLength > 0)
                     {
-                        fileName = Path.GetFileName(fileName);
-                        string path = Path.Combine(Server.MapPath(_ImagesPath), Path.GetFileName(fileName));
-                        image.SaveAs(path);
+                        try
+                        {
+                            fileName = Path.GetFileName(fileName);
+                            string path = Path.Combine(Server.MapPath(_ImagesPath), Path.GetFileName(fileName));
+                            image.SaveAs(path);
 
-                        postViewModel.PosterImg = fileName;
+                            postViewModel.PosterImg = fileName;
+                        }
+                        catch (Exception)
+                        {
+                            throw;
+                        }
                     }
-                    catch (Exception)
-                    {
-                        throw;
-                    }
+
                 }
 
                 List<Tag> tags = new List<Tag>();
@@ -385,11 +392,12 @@ namespace FA.JustBlog.Areas.Admin.Controllers
 
 
                 postViewModel.Tags = tags;
+
                 var post = Mapper.Map<Post>(postViewModel);
-                post.PosterImg = fileName;
                 var response = _postService.Add(post);
                 if (response.Status == 200)
                 {
+                    logger.Info($"{User.Identity.Name} add a new post");
                     return Json(new
                     {
                         HasErrors = false,
@@ -534,7 +542,7 @@ namespace FA.JustBlog.Areas.Admin.Controllers
         public JsonResult UpdatePublish(long id, bool status)
         {
             var response = _postService.UpdatePublish(id, status);
-            if(response.Status == 200)
+            if (response.Status == 200)
             {
                 return Json(new
                 {

@@ -115,7 +115,9 @@ namespace FA.JustBlog.Controllers
 
             if (response.Status == 200)
             {
-                return View(response.Data);
+                Post post = response.Data as Post;
+                ViewBag.Comments = post.Comments;
+                return View(post);
             }
             else
             {

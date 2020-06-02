@@ -4,6 +4,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace FA.JustBlog.Core
         {
             CreateDefaultCategories(context);
             CreateDefaultTags(context);
-            CreateDefaultPosts(context);
+            CreateDefaultPostsByScript(context);
 
             Task.Run(async () => { await SeedAsync(context); }).Wait();
             context.SaveChanges();
@@ -171,6 +172,21 @@ namespace FA.JustBlog.Core
 
             context.Posts.AddRange(defaultPosts);
             context.SaveChanges();
+        }
+
+        private void CreateDefaultPostsByScript(JustBlogContext context)
+        {
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory.Replace("\\bin", string.Empty) + "\\Assets\\DataInit";
+            if (!Directory.Exists(baseDir))
+            {
+                Directory.CreateDirectory(baseDir);
+            }
+
+            var fileScript = baseDir + "\\dataPost.sql";
+            if (File.Exists(fileScript))
+            {
+                context.Database.ExecuteSqlCommand(File.ReadAllText(fileScript));
+            }
         }
 
         #region Add User and Role Identity
