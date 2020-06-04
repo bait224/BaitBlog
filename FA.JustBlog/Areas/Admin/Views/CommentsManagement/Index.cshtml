@@ -1,0 +1,210 @@
+﻿@model PaginationList<Comment>
+
+@{
+    ViewBag.Title = "ListComment";
+    Layout = "~/Areas/Admin/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <h2>List Comment</h2>
+    <hr />
+    <div class="row col-md-12">
+        <div class="col-md-8">
+            <form action="@Url.Action("Index", "CommentsManagement")" method="get" class="form-inline float-right">
+                <div class="form-group mx-sm-3 mb-2">
+                    <input type="text" class="form-control mr-1" id="inputSearch" name="searchString" value="@ViewData["CurrentFilter"]" placeholder="Input ...">
+                    <button type="submit" class="btn-sm btn-primary mr-5"><i class="fa fa-search"></i></button>
+                    <a href="@Url.Action("Index", "CommentsManagement")" class="btn btn-primary ml-5"><i class="fa fa-refresh"></i></a>
+                </div>
+            </form>
+        </div>
+    </div>
+    @if (!Model.Any())
+    {
+        <div class="row">
+            <table class="table">
+                <tr>
+                    <td colspan="3" class="text-center">Don't have result.</td>
+                </tr>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="row col-md-12 mt-4 d-flex justify-content-center">
+            <div class="row col-md-12">
+                <div class="col-md-4">
+                    @using (Html.BeginForm("Index", "CommentsManagement", FormMethod.Get))
+                {
+                        <p>
+                            Page Size: @Html.DropDownList("pageSize", new SelectList(ViewBag.size, "Value", "Text", ViewData["CurrentSize"]), new { @onchange = "this.form.submit();" })
+                        </p>
+                    }
+                </div>
+                <table class="table-striped table-bordered table-responsive" style="font-size: 16px" id="listcate">
+                    <tr>
+                        <th style="width:10%; text-align: center">
+                            <a href="@Url.Action("Index", "CommentsManagement", new { sortOrder = ViewData["NameSortParm"], currentFilter = ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })">
+                                Name
+                                @{
+                                    if (ViewData["NameSortParm"].ToString() == "")
+                                    {
+                                        <i class='fa fa-fw fa-sort-asc'></i>
+                                    }
+                                    else if (ViewData["NameSortParm"].ToString() == "name_desc")
+                                    {
+                                        <i class='fa fa-fw fa-sort-desc'></i>
+                                    }
+                                    else
+                                    {
+                                        <i class='fa fa-fw fa-sort'></i>
+                                    }
+                                }
+                            </a>
+                        </th>
+                        <th style="width:10%; text-align: center">
+                            <a href="@Url.Action("Index", "CommentsManagement", new { sortOrder = ViewData["EmailSortParm"], currentFilter = ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })">
+                                Email
+                                @{
+                                    if (ViewData["EmailSortParm"].ToString() == "Email")
+                                    {
+                                        <i class='fa fa-fw fa-sort-asc'></i>
+                                    }
+                                    else if (ViewData["EmailSortParm"].ToString() == "email_desc")
+                                    {
+                                        <i class='fa fa-fw fa-sort-desc'></i>
+                                    }
+                                    else
+                                    {
+                                        <i class='fa fa-fw fa-sort'></i>
+                                    }
+                                }
+                            </a>
+                        </th>
+                        <th style="width:10%; text-align: center">
+                            Header
+                        </th>
+                        <th style="width:40%; text-align: center">
+                            Content
+                        </th>
+                        <th style="width:10%; text-align: center">
+                            <a href="@Url.Action("Index", "CommentsManagement", new { sortOrder = ViewData["TimeSortParm"], currentFilter = ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })">
+                                Comment Time
+                                @{
+                                    if (ViewData["TimeSortParm"].ToString() == "CommentTime")
+                                    {
+                                        <i class='fa fa-fw fa-sort-asc'></i>
+                                    }
+                                    else if (ViewData["TimeSortParm"].ToString() == "comment_time_desc")
+                                    {
+                                        <i class='fa fa-fw fa-sort-desc'></i>
+                                    }
+                                    else
+                                    {
+                                        <i class='fa fa-fw fa-sort'></i>
+                                    }
+                                }
+                            </a>
+                        </th>
+                        <th style="width:10%; text-align: center">
+                            <a href="@Url.Action("Index", "CommentsManagement", new { sortOrder = ViewData["PostSortParm"], currentFilter = ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })">
+                                Post Title
+                                @{
+                                    if (ViewData["PostSortParm"].ToString() == "Post")
+                                    {
+                                        <i class='fa fa-fw fa-sort-asc'></i>
+                                    }
+                                    else if (ViewData["PostSortParm"].ToString() == "post_desc")
+                                    {
+                                        <i class='fa fa-fw fa-sort-desc'></i>
+                                    }
+                                    else
+                                    {
+                                        <i class='fa fa-fw fa-sort'></i>
+                                    }
+                                }
+                            </a>
+                        </th>
+                        <th style="width: 10%"></th>
+                    </tr>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td style="padding-left: 5px">
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td style="padding-left: 5px">
+                                @Html.DisplayFor(modelItem => item.Email)
+                            </td>
+                            <td style="text-align: center">
+                                @item.CommentHeader
+                            </td>
+                            <td style="text-align: center">
+                                @Html.Raw(HttpUtility.HtmlDecode(@item.CommentText))
+                            </td>
+                            <td style="text-align: center">
+                                @item.CommentTime
+                            </td>
+                            <td style="text-align: center">
+                                @item.Post.Title
+                            </td>
+                            <td style="text-align: center">
+                                <button class="btn-sm btn-primary" onclick="location.href='@Url.Action("EditComment", "CommentsManagement", new { Id = item.Id})'"><i class="fa fa-edit"></i></button> |
+                                <button class="btn-sm btn-danger" onclick="DeleteComment(@item.Id)" id="delete_@item.Id"><i class="fa fa-remove"></i></button>
+                            </td>
+                        </tr>
+                     }
+                </table>
+            </div>
+            <div class="row col-md-12 d-flex justify-content-center">
+                <nav class="mt-4" aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
+                        @{
+                            var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                            var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+                            var preBgDisabled = !Model.HasPreviousPage ? "#e6e6e6" : "";
+                            var nextBgDisabled = !Model.HasNextPage ? "#e6e6e6" : "";
+
+                            ViewBag.PageRange = 3;
+                        }
+                        <li class="page-item @prevDisabled">
+                            <a href="@Url.Action("Index", "CommentsManagement", new { sortOrder=ViewData["CurrentSort"], page=1, currentFilter=ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })"
+                               class="page-link" style="background-color:@preBgDisabled"><<</a>
+                        <li class="page-item @prevDisabled">
+                            <a href="@Url.Action("Index", "CommentsManagement", new { sortOrder=ViewData["CurrentSort"], page=(Model.PageIndex - 1 <= 0 ? 1 : Model.PageIndex - 1), currentFilter=ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })"
+                               class="page-link" style="background-color:@preBgDisabled"><</a>
+                        </li>
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    if (i >= Model.PageIndex - ViewBag.PageRange && i <= Model.PageIndex + ViewBag.PageRange)
+                    {
+                                <li class="page-item">
+                                    @if (i == Model.PageIndex)
+                        {
+                                        <span class="page-link">
+                                            @i
+                                            <span class="sr-only">(current)</span>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a class="page-link"
+                                           href="@Url.Action("Index", "CommentsManagement", new { sortOrder=ViewData["CurrentSort"], page=i, currentFilter=ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })">@i</a>
+                                    }
+                                </li>
+                            }
+                        }
+                        <li class="page-item @nextDisabled">
+                            <a href="@Url.Action("Index", "CommentsManagement", new { sortOrder=ViewData["CurrentSort"], page=(Model.PageIndex + 1 > Model.TotalPages ? Model.TotalPages : Model.PageIndex + 1), currentFilter=ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })"
+                               class="page-link" style="background-color:@nextBgDisabled">></a>
+                        <li class="page-item @nextDisabled">
+                            <a href="@Url.Action("Index", "CommentsManagement", new { sortOrder=ViewData["CurrentSort"], page=(Model.TotalPages), currentFilter=ViewData["CurrentFilter"], pageSize = ViewData["CurrentSize"] })"
+                               class="page-link" style="background-color:@nextBgDisabled">>></a>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+                            }
+   
+</div>
